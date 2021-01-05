@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Lab11.DataContext;
 
 namespace Lab11
 {
@@ -24,6 +25,8 @@ namespace Lab11
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddControllersWithViews();
+            services.AddSingleton<IDataContext, MockDataContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
