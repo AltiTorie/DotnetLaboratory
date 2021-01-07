@@ -4,12 +4,11 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>User management</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @Html.ActionLink("Create user", "Create", null, htmlAttributes: new { @class = "btn btn-primary" })
 </p>
-
 <table class="table">
     <thead>
         <tr>
@@ -51,9 +50,9 @@
                     @Html.DisplayFor(modelItem => item.Category)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }, htmlAttributes: new { @class = "btn btn-primary" }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }, htmlAttributes: new { @class = "btn btn-info" }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, htmlAttributes: new { @class = "btn btn-danger" })
                 </td>
             </tr>
         }
