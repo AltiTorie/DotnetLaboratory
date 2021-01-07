@@ -10,10 +10,10 @@ namespace Lab11.DataContext
     {
         Dictionary<int, UserViewModel> users = new Dictionary<int, UserViewModel>()
         {
-            { 0, new UserViewModel(0,"Arek321","Arek@gmail.com", "12-345", Category.Admin) },
-            { 1,  new UserViewModel(1, "Tomek", "Tom123@yahoo.com", "96-243", Category.Buyer) },
-            { 2,  new UserViewModel(2, "Potomek", "PamelaAnderson@gmail.com", "75-143", Category.Moderator) },
-            { 3,  new UserViewModel(3, "Anijapania", "JakisEmail@emailowo.com", "671-24", Category.Seller) }
+            { 1, new UserViewModel(1,"Arek321","Arek@gmail.com", "12-345", Category.Admin) },
+            { 2,  new UserViewModel(2, "Tomek", "Tom123@yahoo.com", "96-243", Category.Buyer) },
+            { 3,  new UserViewModel(3, "Potomek", "PamelaAnderson@gmail.com", "75-143", Category.Moderator) },
+            { 4,  new UserViewModel(4, "Anijapania", "JakisEmail@emailowo.com", "671-24", Category.Seller) }
         };
         public void AddUser(UserViewModel person)
         {
@@ -37,7 +37,10 @@ namespace Lab11.DataContext
         public void RemoveUser(int id)
         {
             if (users.ContainsKey(id))
+            {
                 users.Remove(id);
+            }
+            else throw new Exception("User does not exist");
         }
 
         public void UpdateUser(UserViewModel person)
