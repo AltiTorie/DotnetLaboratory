@@ -363,3 +363,6 @@ FodyWeavers.xsd
 
 # zip files
 *.zip
+
+#pictures
+*.jpg
