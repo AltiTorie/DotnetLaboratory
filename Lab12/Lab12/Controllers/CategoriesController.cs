@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lab12.Data;
 using Lab12.Models;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Lab12.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly MyDbContext _context;
+        private IWebHostEnvironment _hostingEnvironment;
 
-        public CategoriesController(MyDbContext context)
+        public CategoriesController(MyDbContext context, IWebHostEnvironment webEnvironment)
         {
             _context = context;
+            _hostingEnvironment = webEnvironment;
         }
 
         // GET: Categories
@@ -140,6 +144,11 @@ namespace Lab12.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories.FindAsync(id);
+            var articles = _context.Articles.Where(a => a.CategoryId == id).Select(a => a);
+            foreach (var article in articles)
+            {
+                DeleteArticleImage(article);
+            }
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -148,6 +157,25 @@ namespace Lab12.Controllers
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.Id == id);
+        }
+
+        private void DeleteArticleImage(Article article)
+        {
+            if (article.PathToImage != null)
+            {
+                if (!article.PathToImage.Contains("img.jpg"))
+                {
+                    string path = Path.Combine(_hostingEnvironment.WebRootPath, article.PathToImage);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                    else if (System.IO.File.Exists(article.PathToImage))
+                    {
+                        System.IO.File.Delete(article.PathToImage);
+                    }
+                }
+            }
         }
     }
 }

@@ -123,6 +123,7 @@ namespace Lab12.Controllers
             {
                 try
                 {
+                    //article.PathToImage = (_context.Find(typeof(Article), id) as Article).PathToImage;
                     _context.Update(article);
                     await _context.SaveChangesAsync();
                 }
@@ -168,18 +169,7 @@ namespace Lab12.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var article = await _context.Articles.FindAsync(id);
-            if (!article.PathToImage.Contains("img.jpg"))
-            {
-                string path = Path.Combine(_hostingEnvironment.WebRootPath, article.PathToImage);
-                if (System.IO.File.Exists(path))
-                {
-                    System.IO.File.Delete(path);
-                }
-                else if (System.IO.File.Exists(article.PathToImage))
-                {
-                    System.IO.File.Delete(article.PathToImage);
-                }
-            }
+            DeleteImage(article);
             _context.Articles.Remove(article);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -188,6 +178,25 @@ namespace Lab12.Controllers
         private bool ArticleExists(int id)
         {
             return _context.Articles.Any(e => e.Id == id);
+        }
+
+        private void DeleteImage(Article article)
+        {
+            if (article.PathToImage != null)
+            {
+                if (!article.PathToImage.Contains("img.jpg"))
+                {
+                    string path = Path.Combine(_hostingEnvironment.WebRootPath, article.PathToImage);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                    else if (System.IO.File.Exists(article.PathToImage))
+                    {
+                        System.IO.File.Delete(article.PathToImage);
+                    }
+                }
+            }
         }
     }
 }
