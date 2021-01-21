@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Lab12.Data;
 using Lab12.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,16 +35,8 @@ namespace Lab12.Controllers
         {
 
             var req = Request.Cookies["cart"];
-            Cart c = null;
-            if (req != null)
-            {
-                c = JsonConvert.DeserializeObject<Cart>(req);
-            }
-            if (c == null)
-            {
-                c = new Cart();
-            }
-            var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
+            Cart c = GetCart();
+            var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id)).Include(a => a.Category);
             ViewData["Articles"] = ctx;
             ViewData["Quantity"] = c.Articles;
             ViewData["Count"] = ctx.Count() > 0;
@@ -56,7 +49,7 @@ namespace Lab12.Controllers
         {
             catId = categoryID;
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            ViewData["Articles"] = getArticles(categoryID);
+            ViewData["Articles"] = getArticlesFromCategory(categoryID);
 
             return View("Index");
         }
@@ -67,12 +60,10 @@ namespace Lab12.Controllers
         {
             ViewBag.context = _context;
             var article = _context.Articles.Find(articleId);
-            Cart c = TryGetCart();
+            Cart c = GetCart();
             c.AddItem(article);
 
             SaveCartToCookie(c);
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            //ViewData["Articles"] = getArticles(catId);
             return Filter(catId);
 
         }
@@ -83,14 +74,10 @@ namespace Lab12.Controllers
         {
             ViewBag.context = _context;
             var article = _context.Articles.Find(articleId);
-            Cart c = TryGetCart();
+            Cart c = GetCart();
             c.AddItem(article);
 
             SaveCartToCookie(c);
-            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            //ViewData["Articles"] = ctx;
-            //ViewData["Quantity"] = c.Articles;
-            //ViewData["Count"] = ctx.Count() > 0;
             return RedirectToAction("ShowCart");
 
         }
@@ -102,13 +89,9 @@ namespace Lab12.Controllers
         {
             ViewBag.context = _context;
             var article = _context.Articles.Find(articleId);
-            Cart c = TryGetCart();
+            Cart c = GetCart();
             c.RemoveOneItem(article);
             SaveCartToCookie(c);
-            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            //ViewData["Articles"] = ctx;
-            //ViewData["Quantity"] = c.Articles;
-            //ViewData["Count"] = ctx.Count() > 0;
             return RedirectToAction("ShowCart");
 
         }
@@ -120,18 +103,14 @@ namespace Lab12.Controllers
             ViewBag.context = _context;
             var article = _context.Articles.Find(articleId);
 
-            Cart c = TryGetCart();
+            Cart c = GetCart();
             c.RemoveItem(article);
             SaveCartToCookie(c);
-            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            //ViewData["Articles"] = ctx;
-            //ViewData["Quantity"] = c.Articles;
-            //ViewData["Count"] = ctx.Count() > 0;
             return RedirectToAction("ShowCart");
 
         }
 
-        private Cart TryGetCart()
+        private Cart GetCart()
         {
             var req = Request.Cookies["cart"];
             Cart c = null;
@@ -139,7 +118,6 @@ namespace Lab12.Controllers
             {
                 c = JsonConvert.DeserializeObject<Cart>(req);
             }
-            //Cart c = TryGetCart();
             if (c == null)
             {
                 c = new Cart();
@@ -148,9 +126,9 @@ namespace Lab12.Controllers
         }
         private void SaveCartToCookie(Cart cart)
         {
-            SetCookie("cart", JsonConvert.SerializeObject(cart), 604800);
+            SetCookie("cart", JsonConvert.SerializeObject(cart), 7);
         }
-        private IQueryable getArticles(int categoryId)
+        private IQueryable getArticlesFromCategory(int categoryId)
         {
             if (categoryId <= 0)
             {
@@ -159,57 +137,17 @@ namespace Lab12.Controllers
             return _context.Articles.Include(a => a.Category).Where(a => a.CategoryId == categoryId);
         }
 
-        private void SetCookie(string key, string value, int? numberOfSeconds = null)
+        private void SetCookie(string key, string value, int? numberOfDays = null)
         {
             CookieOptions option = new CookieOptions();
-            if (numberOfSeconds.HasValue)
+            if (numberOfDays.HasValue)
             {
-                option.Expires = DateTime.Now.AddSeconds(numberOfSeconds.Value);
+                option.Expires = DateTime.Now.AddDays(numberOfDays.Value);
             }
             Response.Cookies.Append(key, value, option);
         }
 
-        private class Cart
-        {
-            public Dictionary<int, int> Articles { get; private set; }
-
-            public Cart()
-            {
-                Articles = new Dictionary<int, int>();
-            }
-
-            public void AddItem(Article article)
-            {
-                if (Articles.ContainsKey(article.Id))
-                {
-                    Articles[article.Id] = Articles[article.Id] + 1;
-                }
-                else
-                {
-                    Articles.Add(article.Id, 1);
-                }
-            }
-
-            public void RemoveOneItem(Article article)
-            {
-                if (Articles[article.Id] > 1)
-                {
-                    Articles[article.Id] = Articles[article.Id] - 1;
-                }
-                else
-                {
-                    Articles.Remove(article.Id);
-                }
-            }
-
-            public void RemoveItem(Article article)
-            {
-                if (Articles.ContainsKey(article.Id))
-                {
-                    Articles.Remove(article.Id);
-                }
-            }
-        }
+        
     }
 
 }

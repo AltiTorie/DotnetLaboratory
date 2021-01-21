@@ -9,6 +9,8 @@ using Lab12.Data;
 using Lab12.Models;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace Lab12.Controllers
 {
@@ -170,6 +172,7 @@ namespace Lab12.Controllers
         {
             var article = await _context.Articles.FindAsync(id);
             DeleteImage(article);
+            UpdateArticlesInCart();
             _context.Articles.Remove(article);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -197,6 +200,50 @@ namespace Lab12.Controllers
                     }
                 }
             }
+        }
+
+        private void UpdateArticlesInCart()
+        {
+            Cart c = GetCart();
+            var articles = _context.Articles;
+            var keys = new List<int>();
+            foreach(Article a in articles)
+            {
+                keys.Add(a.Id);
+            }
+            foreach(var value in c.Articles)
+            {
+                if (!keys.Contains(value.Key))
+                {
+                    c.Articles.Remove(value.Key);
+                }
+            }
+            SetCookie("cart", JsonConvert.SerializeObject(c), 7);
+
+        }
+
+        private void SetCookie(string key, string value, int? numberOfDays = null)
+        {
+            CookieOptions option = new CookieOptions();
+            if (numberOfDays.HasValue)
+            {
+                option.Expires = DateTime.Now.AddDays(numberOfDays.Value);
+            }
+            Response.Cookies.Append(key, value, option);
+        }
+        private Cart GetCart()
+        {
+            var req = Request.Cookies["cart"];
+            Cart c = null;
+            if (req != null)
+            {
+                c = JsonConvert.DeserializeObject<Cart>(req);
+            }
+            if (c == null)
+            {
+                c = new Cart();
+            }
+            return c;
         }
     }
 }
