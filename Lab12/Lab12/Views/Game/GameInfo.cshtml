@@ -1,0 +1,21 @@
+﻿
+@{
+    ViewData["Title"] = "Game Info";
+}
+<link rel="stylesheet" href="~/css/site.css" />
+<h3>
+    Gra w zgadywanie!
+</h3>
+<h5>
+    Ustawienie zakresu (n), np. na wartość 30 może być wykonywane przez adres:<br />
+    localhost:@ViewData["port"]/Set,30
+    <br />
+
+    Wylosowanie nowego numeru przez:<br />
+    localhost:@ViewData["port"]/Draw<br />
+
+    Natomiast zgadywanie liczby, np. 12 poprzez:<br />
+    localhost:@ViewData["port"]/Guess,12
+    <br />
+</h5>
+

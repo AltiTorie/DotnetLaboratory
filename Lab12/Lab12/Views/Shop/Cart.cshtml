@@ -1,31 +1,9 @@
 ﻿@model Lab12.Models.Article
-
 @{
-    ViewData["Title"] = "Shop";
+    ViewData["Title"] = "Cart";
 }
 
-<h1>Shop</h1>
-<div class="row">
-    <div class="col-md-4">
-        <div class="text-danger">@TempData["Error"]</div>
-        <form asp-action="Filter">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label">Category</label>
-                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId" >ID</select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Select" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <h1>@ViewBag.msg</h1>
-    <h1>@ViewData["msg2"]</h1>
-</div>
-
+<h1>Cart</h1>
 <table class="table">
     <thead>
         <tr>
@@ -44,7 +22,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Category)
             </th>
-            <th></th>
+            <th>
+                Quantity
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -70,22 +50,53 @@
                 @Html.DisplayFor(modelItem => item.Category.Name)
             </td>
             <td>
+                @ViewBag.Quantity[item.Id]
+            </td>
+            <td>
                 <div class="col-md-4">
                     <div class="text-danger">@TempData["Error"]</div>
-                    <form asp-action="AddToCart">
+                    <form asp-action="AddOneToCart">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
-                            <label asp-for="Id" class="control-label">Id</label>
                             <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
 
                         </div>
                         <div class="form-group">
-                            <input type="submit" value="Add" class="btn btn-warning" />
+                            <input type="submit" value="+" class="btn btn-success" />
                         </div>
                     </form>
                 </div>
             </td>
-            
+            <td>
+                <div class="col-md-4">
+                    <div class="text-danger">@TempData["Error"]</div>
+                    <form asp-action="SubstractFromCart">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="-" class="btn btn-warning" />
+                        </div>
+                    </form>
+                </div>
+            </td>
+            <td>
+            <div class="col-md-4">
+                <div class="text-danger">@TempData["Error"]</div>
+                <form asp-action="DeleteFromCart">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+                    </div>
+                </form>
+            </div>
+            </td>
         </tr>
         }
     </tbody>

@@ -1,11 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Lab12.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +20,16 @@ namespace Lab12
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(5);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+
             services.AddControllersWithViews();
             services.AddDbContextPool<MyDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MyDb")));
         }
@@ -49,8 +54,25 @@ namespace Lab12
 
             app.UseAuthorization();
 
+            app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                   name: "Guess",
+                   pattern: "Guess,{number}",
+                   defaults: new { controller = "Game", action = "GuessNumber" });
+
+                endpoints.MapControllerRoute(
+                    name: "Set",
+                    pattern: "Set,{range}",
+                    defaults: new { controller = "Game", action = "SetRange" });
+
+                endpoints.MapControllerRoute(
+                    name: "Draw",
+                    pattern: "Draw",
+                    defaults: new { controller = "Game", action = "DrawNumber" });
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
