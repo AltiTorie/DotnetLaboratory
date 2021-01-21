@@ -3,101 +3,135 @@
     ViewData["Title"] = "Cart";
 }
 
-<h1>Cart</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PathToImage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                Quantity
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Article item in ViewBag.Articles)
-        {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @{
-                    var image = item.PathToImage;
-                }
-                <img src="/@image" class="img-thumbnail" width="64" height="64" />
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Name)
-            </td>
-            <td>
-                @ViewBag.Quantity[item.Id]
-            </td>
-            <td>
-                <div class="col-md-4">
-                    <div class="text-danger">@TempData["Error"]</div>
-                    <form asp-action="AddOneToCart">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="form-group">
-                            <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+@if (!ViewBag.Count)
+{
+    <h3 style="color:darkgray">Twój koszyk jest pusty</h3>
+}
+else
+{
+    var absTotal = 0;
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Price)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PathToImage)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Category)
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    Total
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Article item in ViewBag.Articles)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @{
+                            var image = item.PathToImage;
+                        }
+                        <img src="/@image" class="img-thumbnail" width="64" height="64" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category.Name)
+                    </td>
+                    <td>
+                        @ViewBag.Quantity[item.Id]
+                    </td>
+                    <td>
+                        @{
+                            var total = 0;
 
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="+" class="btn btn-success" />
-                        </div>
-                    </form>
-                </div>
-            </td>
-            <td>
-                <div class="col-md-4">
-                    <div class="text-danger">@TempData["Error"]</div>
-                    <form asp-action="SubstractFromCart">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="form-group">
-                            <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+                            total += ViewBag.Quantity[item.Id] * item.Price;
+                            absTotal += total;
+                        }
+                        @total zł
+                    </td>
+                    <td>
+                        <div class="col-md-1 col-lg-1">
+                            <div class="text-danger">@TempData["Error"]</div>
+                            <form asp-action="AddOneToCart">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
 
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="+" class="btn btn-success" />
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <input type="submit" value="-" class="btn btn-warning" />
-                        </div>
-                    </form>
-                </div>
-            </td>
-            <td>
-            <div class="col-md-4">
-                <div class="text-danger">@TempData["Error"]</div>
-                <form asp-action="DeleteFromCart">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
 
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Delete" class="btn btn-danger" />
-                    </div>
-                </form>
-            </div>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+                        <div class="col-md-1 col-lg-1">
+                            <div class="text-danger">@TempData["Error"]</div>
+                            <form asp-action="SubstractFromCart">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="-" class="btn btn-warning" />
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="col-md-3 col-lg-3">
+                            <div class="text-danger">@TempData["Error"]</div>
+                            <form asp-action="DeleteFromCart">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <input asp-for="Id" name="articleId" class="form-control" type="hidden" value="@item.Id" />
+
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="Delete" class="btn btn-danger" />
+                                </div>
+                            </form>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <hr />
+    <div align="right">
+        <h1>
+            <table style="">
+                <thead>
+                    Total
+                </thead>
+                <tbody>
+                    @absTotal zł
+                </tbody>
+            </table>
+        </h1>
+    </div>
+}

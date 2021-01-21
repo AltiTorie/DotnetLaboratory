@@ -23,12 +23,8 @@ namespace Lab12.Controllers
         // GET: Shop
         public IActionResult Index()
         {
-            ViewBag.context = _context;
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             SelectList list = new SelectList(_context.Categories, "Id", "Name");
-            dynamic modell = new ExpandoObject();
-            modell.Categories = _context.Categories;
-            modell.Articles = _context.Articles.Include(a => a.Category);
             ViewData["Articles"] = _context.Articles.Include(a => a.Category);
 
             return View();
@@ -50,6 +46,7 @@ namespace Lab12.Controllers
             var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
             ViewData["Articles"] = ctx;
             ViewData["Quantity"] = c.Articles;
+            ViewData["Count"] = ctx.Count() > 0;
             return View("Cart");
         }
 
@@ -57,14 +54,10 @@ namespace Lab12.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Filter(int categoryID)
         {
-            ViewBag.context = _context;
             catId = categoryID;
-            dynamic modell = new ExpandoObject();
-            modell.Categories = _context.Categories;
-            modell.Articles = _context.Articles.Include(a => a.Category);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             ViewData["Articles"] = getArticles(categoryID);
-            modell.Articles = getArticles(categoryID);
+
             return View("Index");
         }
 
@@ -78,9 +71,9 @@ namespace Lab12.Controllers
             c.AddItem(article);
 
             SaveCartToCookie(c);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            ViewData["Articles"] = getArticles(catId);
-            return View("Index");
+            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            //ViewData["Articles"] = getArticles(catId);
+            return Filter(catId);
 
         }
 
@@ -94,10 +87,11 @@ namespace Lab12.Controllers
             c.AddItem(article);
 
             SaveCartToCookie(c);
-            var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            ViewData["Articles"] = ctx;
-            ViewData["Quantity"] = c.Articles;
-            return View("Cart");
+            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
+            //ViewData["Articles"] = ctx;
+            //ViewData["Quantity"] = c.Articles;
+            //ViewData["Count"] = ctx.Count() > 0;
+            return RedirectToAction("ShowCart");
 
         }
 
@@ -111,10 +105,11 @@ namespace Lab12.Controllers
             Cart c = TryGetCart();
             c.RemoveOneItem(article);
             SaveCartToCookie(c);
-            var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            ViewData["Articles"] = ctx;
-            ViewData["Quantity"] = c.Articles;
-            return View("Cart");
+            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
+            //ViewData["Articles"] = ctx;
+            //ViewData["Quantity"] = c.Articles;
+            //ViewData["Count"] = ctx.Count() > 0;
+            return RedirectToAction("ShowCart");
 
         }
 
@@ -128,10 +123,11 @@ namespace Lab12.Controllers
             Cart c = TryGetCart();
             c.RemoveItem(article);
             SaveCartToCookie(c);
-            var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
-            ViewData["Articles"] = ctx;
-            ViewData["Quantity"] = c.Articles;
-            return View("Cart");
+            //var ctx = _context.Articles.Where(a => (c.Articles.Keys.ToList()).Contains(a.Id));
+            //ViewData["Articles"] = ctx;
+            //ViewData["Quantity"] = c.Articles;
+            //ViewData["Count"] = ctx.Count() > 0;
+            return RedirectToAction("ShowCart");
 
         }
 
@@ -156,7 +152,7 @@ namespace Lab12.Controllers
         }
         private IQueryable getArticles(int categoryId)
         {
-            if (categoryId == -1)
+            if (categoryId <= 0)
             {
                 return _context.Articles.Include(a => a.Category);
             }
